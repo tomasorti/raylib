@@ -10,6 +10,7 @@
 ********************************************************************************************/
 
 #include "raylib.h"
+#include <stdio.h>
 
 #define MAX_BUILDINGS   100
 
@@ -30,11 +31,13 @@ int main(void)
 
     for (int i = 0; i < MAX_BUILDINGS; i++)
     {
+
         buildings[i].width = GetRandomValue(50, 200);
         buildings[i].height = GetRandomValue(100, 800);
         buildings[i].y = screenHeight - 130 - buildings[i].height;
         buildings[i].x = -6000 + spacing;
-
+        
+        printf("building[%i]: (x=%4.0f, y=%4.0f) | (w=%4.0f, h=%4.0f)\n", i, buildings[i].x, buildings[i].y, buildings[i].width, buildings[i].height);
         spacing += buildings[i].width;
 
         buildColors[i] = (Color){ GetRandomValue(200, 240), GetRandomValue(200, 240), GetRandomValue(200, 250), 255 };
@@ -46,6 +49,8 @@ int main(void)
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
+    bool isTargetPlayer = true;
+    
     SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
@@ -54,6 +59,17 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
+        if (IsKeyDown(KEY_F)) {ToggleFullscreen();}
+
+        // TODO: Is this working?
+        if (IsKeyDown(KEY_T)) {
+            if (isTargetPlayer) {
+                camera.target = (Vector2){ screenWidth/2, screenHeight/2 };
+            } else {
+                camera.target = (Vector2){ player.x + 20, player.y + 20 };
+            }
+            isTargetPlayer != isTargetPlayer;
+        }
         
         // Player movement
         if (IsKeyDown(KEY_RIGHT)) player.x += 2;
@@ -73,6 +89,9 @@ int main(void)
         // Camera zoom controls
         camera.zoom += ((float)GetMouseWheelMove()*0.05f);
 
+        if (IsKeyDown(KEY_UP)) camera.zoom += 0.005f;
+        else if (IsKeyDown(KEY_DOWN)) camera.zoom -= 0.005f;
+        
         if (camera.zoom > 3.0f) camera.zoom = 3.0f;
         else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
 
@@ -87,20 +106,24 @@ int main(void)
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
+        {        
 
             ClearBackground(RAYWHITE);
 
             BeginMode2D(camera);
-
+            {
                 DrawRectangle(-6000, 320, 13000, 8000, DARKGRAY);
 
                 for (int i = 0; i < MAX_BUILDINGS; i++) DrawRectangleRec(buildings[i], buildColors[i]);
 
+                DrawRectangle(0, screenHeight/2, screenWidth, 95, LIME);
+                DrawLine(0, screenHeight/2, screenWidth, screenHeight/2, YELLOW);
+
                 DrawRectangleRec(player, RED);
 
                 DrawLine(camera.target.x, -screenHeight*10, camera.target.x, screenHeight*10, GREEN);
-                DrawLine(-screenWidth*10, camera.target.y, screenWidth*10, camera.target.y, GREEN);
-
+                DrawLine(-screenWidth*10, camera.target.y, screenWidth*10, camera.target.y, BLUE);
+            }
             EndMode2D();
 
             DrawText("SCREEN AREA", 640, 10, 20, RED);
@@ -118,7 +141,7 @@ int main(void)
             DrawText("- Mouse Wheel to Zoom in-out", 40, 60, 10, DARKGRAY);
             DrawText("- A / S to Rotate", 40, 80, 10, DARKGRAY);
             DrawText("- R to reset Zoom and Rotation", 40, 100, 10, DARKGRAY);
-
+        }
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
