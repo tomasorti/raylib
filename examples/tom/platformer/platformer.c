@@ -13,6 +13,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+#include <stdio.h>
 
 #define G 400
 #define PLAYER_JUMP_SPD 350.f
@@ -48,7 +49,6 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    
     InitWindow(screenWidth, screenHeight, "platformer");
 
     Player player = { 0 };
@@ -102,6 +102,9 @@ int main(void)
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
 
+    bool drawAxisFlag = true;
+    char drawAxisFlagStr[50];
+    
     // Main game loop
     while (!WindowShouldClose()) 
     {
@@ -143,8 +146,13 @@ int main(void)
 
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40, 40 };
                 DrawRectangleRec(playerRect, RED);
-                DrawMainAxes(&camera);
-            }  
+
+                if (IsKeyPressed(KEY_A))
+                    drawAxisFlag = !drawAxisFlag;
+                
+                if (drawAxisFlag)
+                    DrawMainAxes(&camera);
+            }
             EndMode2D();
 
             DrawText("Controls:", 20, 20, 10, BLACK);
@@ -154,7 +162,9 @@ int main(void)
             DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
             DrawText("Current camera mode:", 20, 120, 10, BLACK);
             DrawText(cameraDescriptions[cameraOption], 40, 140, 10, DARKGRAY);
-        }  
+            sprintf(drawAxisFlagStr, "drawAxisFlag: %d", drawAxisFlag);
+            DrawText(drawAxisFlagStr, 40, 160, 10, DARKGRAY);
+       }  
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
